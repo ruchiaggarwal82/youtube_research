@@ -1,4 +1,4 @@
-from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, TranscriptsDisabled
+from youtube_transcript_api import YouTubeTranscriptApi
 import re
 
 
@@ -16,15 +16,8 @@ def extract_video_id(url_or_id: str) -> str:
 
 def fetch_transcript(video_id: str) -> str:
     try:
-        entries = YouTubeTranscriptApi.get_transcript(video_id)
-    except (NoTranscriptFound, TranscriptsDisabled):
-        try:
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-            transcript = transcript_list.find_generated_transcript(
-                [t.language_code for t in transcript_list]
-            )
-            entries = transcript.fetch()
-        except Exception:
-            return ""
-
-    return " ".join(e["text"] for e in entries)
+        api = YouTubeTranscriptApi()
+        transcript = api.fetch(video_id)
+        return " ".join(entry.text for entry in transcript)
+    except Exception:
+        return ""
